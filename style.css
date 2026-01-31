@@ -1,0 +1,759 @@
+/* --- VARIABEL & RESET --- */
+:root {
+    --green: #0b4626;
+    --gold: #e68a00;
+    --gold-light: #ffb84d;
+    --dark: #111;
+    --light: #f9f9f9;
+    --white: #fff;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+body { background-color: var(--light); color: #333; overflow-x: hidden; }
+
+/* UTILS */
+.bg-white { background: var(--white); }
+.bg-light { background: #f4f4f4; }
+.section-padding { padding: 80px 0; }
+.white-text { color: var(--white) !important; }
+.subtitle { text-align: center; margin-bottom: 30px; opacity: 0.9; }
+
+/* TYPOGRAPHY */
+h1, h2, h3 { color: var(--green); text-transform: uppercase; letter-spacing: 1px; }
+
+.section-title {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2rem;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px; height: 4px;
+    background: linear-gradient(to right, var(--green), var(--gold));
+    border-radius: 2px;
+}
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+/* --- JADWAL SHOLAT SECTION --- */
+.jadwal-section {
+    background: var(--white);
+    padding: 30px 0;
+    border-bottom: 1px solid #ddd;
+    margin-top: -5px; /* Sedikit naik agar nempel header */
+    position: relative;
+    z-index: 10;
+}
+
+.jadwal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.lokasi-info {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tanggal-info { text-align: right; }
+.tanggal-info h3 { margin: 0; font-size: 1.1rem; color: var(--dark); }
+.text-gold { color: var(--gold); font-weight: 600; }
+
+.jadwal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+    background: var(--light);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.sholat-card {
+    background: var(--white);
+    padding: 15px 10px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #eee;
+    transition: 0.3s;
+}
+
+.sholat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--gold);
+}
+
+/* Highlight waktu sholat yang sedang aktif/mendekati */
+.sholat-card.active {
+    background: var(--green);
+    color: var(--white);
+    border-color: var(--green);
+    box-shadow: 0 4px 10px rgba(11, 70, 38, 0.3);
+}
+
+.waktu-nama {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    opacity: 0.8;
+}
+
+.waktu-jam {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.sumber-api {
+    text-align: center;
+    margin-top: 10px;
+    color: #888;
+    font-style: italic;
+    font-size: 0.8rem;
+}
+
+/* Responsive Jadwal agar rapi di HP */
+@media (max-width: 600px) {
+    .jadwal-header { flex-direction: column; text-align: center; }
+    .tanggal-info { text-align: center; }
+    .jadwal-grid { grid-template-columns: repeat(3, 1fr); } /* 3 kolom di HP */
+}
+
+
+/* NAVBAR (Baru Ditambahkan) */
+.navbar {
+    position: fixed;
+    top: 0; width: 100%;
+    padding: 20px 5%;
+    display: flex; justify-content: space-between; align-items: center;
+    transition: 0.4s;
+    z-index: 1000;
+    color: white;
+}
+.navbar.scrolled {
+    background: var(--green);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    padding: 15px 5%;
+}
+.nav-logo { font-weight: bold; font-size: 1.5rem; }
+.nav-links { list-style: none; display: flex; gap: 20px; }
+.nav-links a { text-decoration: none; color: white; font-weight: 500; transition: 0.3s; }
+.nav-links a:hover { color: var(--gold); }
+
+/* HEADER VIDEO */
+.video-header {
+    position: relative; width: 100%; height: 100vh;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: #000;
+}
+.overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 2;
+}
+.header-content {
+    position: relative; z-index: 3;
+    text-align: center; color: white; padding: 20px;
+}
+.header-content h1 {
+    font-size: 3.5rem; color: var(--white);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.7); margin-bottom: 10px;
+}
+.header-content span { color: var(--gold); font-weight: bold; }
+
+.video-background {
+    position: absolute; top: 50%; left: 50%;
+    width: 100vw; height: 100vh;
+    transform: translate(-50%, -50%);
+    pointer-events: none; z-index: 1;
+}
+@media (min-aspect-ratio: 16/9) { .video-background { height: 56.25vw; } }
+@media (max-aspect-ratio: 16/9) { .video-background { width: 177.78vh; } }
+
+/* --- TENTANG HADRAH (DESAIN BARU) --- */
+
+/* 1. Kotak Utama */
+.about-box {
+    position: relative;
+    background: var(--white);
+    padding: 50px 40px; /* Padding besar memberi kesan lega/elegan */
+    border-radius: 20px; /* Sudut membulat modern */
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08); /* Bayangan lembut */
+    overflow: hidden; /* Agar efek dekorasi tidak keluar kotak */
+    transition: transform 0.4s ease; /* Efek halus saat disentuh mouse */
+    
+    /* Border Kiri Gradasi (Gabungan Hijau & Emas) */
+    border-left: 8px solid;
+    border-image: linear-gradient(to bottom, var(--green), var(--gold)) 1 100%;
+    /* Catatan: Jika border-image tidak support di browser lama, gunakan fallback border-left biasa */
+}
+
+/* Fallback untuk border jika browser lama */
+@supports not (border-image: linear-gradient(to bottom, var(--green), var(--gold)) 1 100%) {
+    .about-box { border-left: 8px solid var(--green); }
+}
+
+/* Efek Hover: Kotak sedikit naik saat ditunjuk */
+.about-box:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+}
+
+/* 2. Dekorasi Latar Belakang (Opsional: Motif Halus) */
+.about-box::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 150px; height: 150px;
+    background: var(--gold);
+    opacity: 0.1;
+    border-radius: 50%;
+    filter: blur(40px); /* Efek cahaya emas di pojok kanan atas */
+    z-index: 0;
+}
+
+/* 3. Pengaturan Teks */
+.about-text {
+    position: relative;
+    z-index: 1; /* Agar teks di atas dekorasi */
+    font-size: 1.15rem; /* Sedikit lebih besar dari standar */
+    line-height: 1.9; /* Jarak antar baris renggang = Elegan */
+    color: #555; /* Abu-abu tua (lebih lembut dari hitam pekat) */
+    text-align: justify; /* Rata kanan-kiri agar rapi */
+}
+
+/* 4. Highlight Kata (Strong) */
+.about-text strong {
+    color: var(--green); /* Warna Hijau */
+    font-size: 1.3rem; /* Lebih besar */
+    font-weight: 700;
+    font-family: 'Playfair Display', serif; /* Opsi: Font Serif untuk kesan mewah */
+    /* Jika tidak ingin import font baru, hapus baris font-family di atas */
+    background: linear-gradient(120deg, rgba(11, 70, 38, 0.1) 0%, rgba(11, 70, 38, 0) 100%); /* Highlight background tipis */
+    padding: 0 5px;
+    border-radius: 4px;
+}
+
+/* Responsif untuk HP */
+@media (max-width: 768px) {
+    .about-box {
+        padding: 30px 20px;
+        border-left-width: 5px; /* Garis lebih tipis di HP */
+    }
+    .about-text {
+        font-size: 1rem;
+        text-align: left; /* Di HP lebih enak rata kiri */
+    }
+}
+
+/* SERVICES GRID */
+.services-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+.service-card {
+    background: var(--white); padding: 30px;
+    border-radius: 10px; transition: 0.3s;
+    border: 1px solid #eee;
+}
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.service-card h3 { color: var(--gold); margin-bottom: 10px; }
+.border-gold { border-top: 4px solid var(--gold); }
+
+/* BADGES */
+.badge {
+    display: inline-block; padding: 5px 15px;
+    border-radius: 20px; color: white;
+    font-size: 0.8rem; margin-bottom: 15px; font-weight: bold;
+}
+.bg-green { background: var(--green); }
+.bg-gold { background: var(--gold); }
+
+/* --- KLIEN & KOLABORASI (LOGO GAMBAR) --- */
+.section-padding {
+    padding-top: 70px;    /* Jarak Atas */
+    padding-bottom: 70px; /* Jarak Bawah */
+}
+.client-container {
+    display: flex;
+    flex-wrap: wrap; /* Agar logo turun ke bawah jika layar sempit */
+    justify-content: center; /* Posisi di tengah */
+    align-items: center;
+    gap: 40px; /* Jarak antar logo */
+    margin-top: 30px;
+}
+
+.client-logo {
+    width: 150px; /* Lebar standar logo */
+    height: 80px; /* Tinggi standar logo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s ease;
+}
+
+.client-logo img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Agar logo tidak gepeng/terpotong */
+    
+    /* Efek Hitam Putih (Elegan) */
+    filter: grayscale(100%); 
+    opacity: 0.6; /* Agak transparan biar tidak mencolok */
+    transition: all 0.4s ease;
+    cursor: pointer;
+}
+
+/* Efek Saat Mouse Diarahkan (Hover) */
+.client-logo img:hover {
+    filter: grayscale(0%); /* Kembali berwarna */
+    opacity: 1; /* Terlihat jelas */
+    transform: scale(1.1); /* Sedikit membesar */
+}
+
+/* Responsif di HP */
+@media (max-width: 768px) {
+    .client-container {
+        gap: 20px;
+    }
+    .client-logo {
+        width: 100px; /* Logo lebih kecil di HP */
+        height: 60px;
+    }
+}
+
+/* SEGMEN ILMU */
+.ilmu-section { background: var(--green); color: white; }
+.ilmu-section .section-title::after { background: var(--gold); }
+
+.ilmu-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 20px; text-align: center;
+}
+.ilmu-item {
+    background: rgba(255,255,255,0.1); padding: 25px 10px;
+    border-radius: 10px; cursor: pointer; transition: 0.3s;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.ilmu-item:hover {
+    background: var(--gold); transform: scale(1.05); color: var(--dark);
+}
+.ilmu-item i { font-size: 2rem; margin-bottom: 10px; display: block; }
+
+/* GALERI */
+.gallery-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.gallery-item {
+    height: 200px; background-color: #ddd;
+    border-radius: 8px; overflow: hidden;
+}
+.gallery-item img {
+    width: 100%; height: 100%; object-fit: cover; transition: 0.5s;
+}
+.gallery-item:hover img { transform: scale(1.1); }
+
+/* --- FOOTER PROFESSIONAL DESIGN --- */
+footer {
+    background-color: #111; /* Hitam Elegan */
+    color: #bbb; /* Teks abu-abu terang (biar tidak sakit mata) */
+    padding-top: 70px;
+    font-size: 0.95rem;
+    /* Garis Emas Mewah di Atas */
+    border-top: 5px solid;
+    border-image: linear-gradient(to right, var(--green), var(--gold)) 1;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* Responsif Otomatis */
+    gap: 40px;
+    margin-bottom: 50px;
+}
+
+/* Kolom Styling */
+.footer-col h4 {
+    color: var(--white);
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+/* Garis bawah kecil di judul kolom */
+.footer-col h4::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0;
+    width: 50px; height: 2px;
+    background-color: var(--gold);
+}
+
+.footer-logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--white);
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+.footer-logo span { color: var(--gold); }
+
+.footer-desc {
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+/* Link Styling */
+.footer-col ul { list-style: none; }
+.footer-col ul li { margin-bottom: 12px; }
+.footer-col ul li a {
+    color: #bbb;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.footer-col ul li a:hover {
+    color: var(--gold);
+    padding-left: 5px; /* Efek geser saat disentuh */
+}
+
+/* Contact List Icons */
+.contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+.contact-list i {
+    color: var(--gold);
+    margin-top: 5px;
+}
+
+/* Social Media Icons (Lingkaran) */
+.social-links { display: flex; gap: 10px; }
+.social-links a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px; height: 40px;
+    background: #222;
+    color: white;
+    border-radius: 50%; /* Bulat */
+    text-decoration: none;
+    transition: 0.3s;
+    border: 1px solid #333;
+}
+.social-links a:hover {
+    background: var(--gold);
+    color: var(--white);
+    transform: translateY(-3px); /* Naik dikit */
+}
+
+/* Copyright Bar */
+.footer-bottom {
+    background: #080808; /* Lebih gelap dari footer utama */
+    padding: 20px 0;
+    text-align: center;
+    border-top: 1px solid #222;
+    font-size: 0.85rem;
+}
+.footer-bottom strong { color: var(--white); }
+.footer-bottom i { color: red; animation: heartbeat 1.5s infinite; }
+
+/* Animasi Detak Jantung Hati */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Responsif HP */
+@media (max-width: 768px) {
+    .footer-content {
+        grid-template-columns: 1fr; /* Jadi 1 kolom memanjang ke bawah */
+        gap: 30px;
+    }
+    .footer-col { text-align: center; }
+    .footer-col h4::after { left: 50%; transform: translateX(-50%); } /* Garis judul di tengah */
+    .contact-list li { justify-content: center; }
+    .social-links { justify-content: center; }
+}
+
+
+/* CSS Modal (Overlay Gelap) */
+    .modal-overlay {
+        display: none; 
+        position: fixed;
+        z-index: 10000;
+        left: 0; top: 0;
+        width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.9); /* Lebih gelap biar fokus */
+        backdrop-filter: blur(5px);
+    }
+
+    /* Kotak Webview */
+    .modal-box {
+        position: relative;
+        background-color: #fff;
+        margin: 0 auto;
+        width: 100%; height: 100%; /* Fullscreen agar lega bacanya */
+        display: flex;
+        flex-direction: column;
+        animation: slideUp 0.3s ease;
+    }
+
+    /* Header Hijau */
+    .modal-header {
+        background: #0b4626; /* Hijau HNM */
+        padding: 15px 20px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    }
+    .modal-header h3 { margin: 0; font-size: 1.1rem; display: flex; gap: 10px; align-items: center; }
+
+    /* Tombol Tutup */
+    .close-btn {
+        font-size: 24px; cursor: pointer; color: white; opacity: 0.8;
+    }
+    .close-btn:hover { opacity: 1; color: #ffb84d; }
+
+    /* Area Iframe */
+    .modal-body { flex: 1; background: #fff; }
+    .modal-body iframe { width: 100%; height: 100%; border: none; }
+
+    /* Animasi */
+    @keyframes slideUp {
+        from {transform: translateY(100px); opacity: 0;}
+        to {transform: translateY(0); opacity: 1;}
+    }
+
+    /* Responsif: Di Laptop agak kecil dikit biar elegan */
+    @media (min-width: 768px) {
+        .modal-box {
+            width: 90%; height: 90%;
+            margin-top: 2%;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    }
+
+
+
+/* ================================================== */
+/* --- MOBILE RESPONSIVE & OPTIMIZATION (THE APP LOOK) --- */
+/* ================================================== */
+
+@media screen and (max-width: 768px) {
+
+    /* 1. PENYESUAIAN GLOBAL */
+    .container {
+        padding: 0 20px; /* Memberi jarak aman dari pinggir layar HP */
+    }
+    .section-padding {
+        padding-top: 50px; /* Jarak antar bagian lebih rapat di HP */
+        padding-bottom: 50px;
+    }
+    h1 { font-size: 2.2rem; } /* Judul tidak terlalu raksasa */
+    h2.section-title { font-size: 1.8rem; margin-bottom: 30px; }
+    
+    /* 2. NAVBAR (Header Atas) */
+    .navbar {
+        padding: 15px 20px;
+        background: rgba(11, 70, 38, 0.95); /* Selalu ada background di HP agar menu terlihat */
+        backdrop-filter: blur(5px);
+    }
+    .nav-logo { font-size: 1.2rem; }
+    /* Tips: Biasanya di HP menu link disembunyikan dan diganti tombol hamburger. 
+       Untuk saat ini kita biarkan sederhana atau scrollable jika panjang. */
+    .nav-links {
+        display: none; /* Sembunyikan menu teks di HP agar tidak berantakan */
+        /* Nanti bisa ditambahkan fitur tombol menu hamburger JavaScript */
+    }
+
+    /* --- HEADER VIDEO (RASIO TETAP 16:9) --- */
+.video-header {
+    position: relative;
+    width: 100%;
+    /* Mengunci rasio layar ke 16:9 (Standar Youtube) */
+    aspect-ratio: 16 / 9; 
+    /* Hapus height: 100vh agar tidak memaksa full screen yang bikin kepotong */
+    height: auto; 
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.video-background {
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    /* Object-fit contain memastikan video masuk semua ke dalam kotak */
+    object-fit: contain; 
+    z-index: 1;
+    pointer-events: none;
+    /* Hapus transform lama */
+    transform: none; 
+}
+
+/* Overlay Gelap (Agar teks terbaca) */
+.overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.4); 
+    z-index: 2;
+}
+
+/* Konten Teks di atas Video */
+.header-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    color: white;
+    padding: 10px;
+}
+
+.header-content h1 {
+    /* Ukuran font menyesuaikan lebar layar (responsif) */
+    font-size: 4vw; 
+    color: var(--white);
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+    margin-bottom: 5px;
+}
+
+.header-content p {
+    font-size: 1.5vw; /* Teks deskripsi juga menyesuaikan */
+    display: block;
+}
+
+/* Penyesuaian khusus HP agar teks tidak kekecilan */
+@media (max-width: 768px) {
+    .header-content h1 { font-size: 1.5rem; }
+    .header-content p { font-size: 0.8rem; display: none; /* Sembunyikan deskripsi di HP jika video terlalu kecil */ }
+}
+
+    /* 4. JADWAL SHOLAT (Tampilan Compact) */
+    .jadwal-grid {
+        /* Mengubah grid menjadi Flex agar susunan lebih fleksibel */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+    .sholat-card {
+        flex: 1 1 30%; /* Lebar kartu menyesuaikan (kira-kira 3 per baris) */
+        padding: 10px 5px;
+    }
+    .waktu-nama { font-size: 0.75rem; }
+    .waktu-jam { font-size: 1rem; }
+    /* Agar Isya dan Maghrib di baris kedua melebar */
+    #card-maghrib, #card-isya { flex: 1 1 45%; } 
+
+    /* 5. TENTANG (Border Sederhana) */
+    .about-box {
+        padding: 30px 20px;
+        border-left: 5px solid var(--green); /* Fallback border simpel */
+        border-image: none; /* Hilangkan gradient border yang berat di HP */
+    }
+    .about-text {
+        text-align: left; /* Rata kiri lebih enak dibaca di HP */
+        font-size: 1rem;
+    }
+
+    /* 6. LAYANAN (Card Stack) */
+    .services-grid {
+        grid-template-columns: 1fr; /* 1 Kolom memanjang ke bawah */
+        gap: 25px;
+    }
+    .service-card {
+        padding: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05); /* Shadow lebih tipis */
+    }
+
+    /* --- 7. KLIEN (UPDATE: TIDAK SLIDE) --- */
+    .client-container {
+        /* Kembalikan ke mode wrap (turun ke bawah) */
+        flex-wrap: wrap !important; 
+        
+        /* Matikan scroll samping */
+        overflow-x: visible !important; 
+        justify-content: center !important; 
+        
+        /* Reset padding */
+        padding-bottom: 0; 
+    }
+
+    .client-logo {
+        /* Logo mengambil lebar 40% layar (jadi 2 logo per baris) */
+        flex: 0 0 40%; 
+        width: auto;
+        height: auto; /* Tinggi menyesuaikan */
+        margin: 10px; /* Jarak antar logo */
+        
+        /* Hapus scroll snap */
+        scroll-snap-align: none;
+    }
+    
+    .client-logo img {
+        /* Pastikan gambar tidak terlalu besar */
+        max-width: 100%;
+        height: auto;
+    }
+    /* 8. SEGMEN ILMU (Grid Aplikasi) */
+    .ilmu-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 Kolom (Kanan Kiri) */
+        gap: 15px;
+    }
+    .ilmu-item {
+        padding: 20px 10px;
+    }
+    .ilmu-item i { font-size: 1.8rem; }
+    .ilmu-item span { font-size: 0.9rem; }
+
+    /* 9. FOOTER (Rapi Tengah) */
+    .footer-content {
+        gap: 30px;
+        text-align: center; /* Semua teks rata tengah */
+    }
+    .footer-col h4::after {
+        left: 50%; 
+        transform: translateX(-50%); /* Garis judul pas di tengah */
+    }
+    .contact-list li {
+        justify-content: center; /* Ikon kontak di tengah */
+    }
+    .social-links {
+        justify-content: center;
+    }
+}
+
+/* KHUSUS HP SANGAT KECIL (Galaxy Fold / iPhone SE lama) */
+@media screen and (max-width: 380px) {
+    h1 { font-size: 1.8rem; }
+    .jadwal-grid { flex-direction: column; } /* Jadwal sholat memanjang ke bawah */
+    .sholat-card { width: 100%; display: flex; justify-content: space-between; padding: 10px 20px; }
+    .waktu-nama, .waktu-jam { margin: 0; display: inline-block; }
+}
